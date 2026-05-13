@@ -1,0 +1,20 @@
+name: nvidia-gpu
+description: CUDA-optimized Qwen 3 0.6B (Q4_K_M) for NVIDIA GPUs
+vendor: Canonical Ltd
+grade: stable
+devices:
+  allof:
+    - type: gpu
+      vendor-id: 0x10de # Nvidia Corporation
+  anyof:
+    - type: cpu
+      architecture: amd64
+    - type: cpu
+      architecture: arm64
+memory: 2G
+disk-space: 2G
+components:
+  - llamacpp-cuda
+  - model-0-6b-q4-k-m-gguf
+configurations:
+  sleep-idle-seconds: 600

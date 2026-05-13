@@ -1,0 +1,15 @@
+# Snap build artefacts
+*.snap
+*.comp
+parts/
+prime/
+stage/
+.craft/
+overlay/
+partitions/
+
+# Model weight files
+*.gguf
+
+# Dev tools
+dev/
