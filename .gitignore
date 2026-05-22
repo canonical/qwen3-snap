@@ -1,0 +1,7 @@
+.gitmodules
+*.snap
+*.comp
+parts/
+prime/
+stage/
+*.gguf

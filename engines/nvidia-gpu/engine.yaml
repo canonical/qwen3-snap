@@ -1,0 +1,20 @@
+name: nvidia-gpu
+description: NVIDIA GPU inference using llama.cpp with CUDA backend
+vendor: Canonical Ltd
+grade: stable
+devices:
+  allof:
+    - type: gpu
+      vendor-id: 0x10de
+  anyof:
+    - type: cpu
+      architecture: amd64
+    - type: cpu
+      architecture: arm64
+memory: 1G
+disk-space: 1G
+components:
+  - llamacpp-cuda
+  - model-qwen3-q4km
+configurations:
+  sleep-idle-seconds: 600

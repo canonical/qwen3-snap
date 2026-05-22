@@ -1,0 +1,17 @@
+name: cpu
+description: CPU-based inference using llama.cpp
+vendor: Canonical Ltd
+grade: stable
+devices:
+  anyof:
+    - type: cpu
+      architecture: amd64
+    - type: cpu
+      architecture: arm64
+memory: 1G
+disk-space: 1G
+components:
+  - llamacpp
+  - model-qwen3-q4km
+configurations:
+  sleep-idle-seconds: 600

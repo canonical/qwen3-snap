@@ -1,0 +1,18 @@
+#!/bin/bash -eu
+
+tag="snap.$SNAP_INSTANCE_NAME.hook.post-refresh"
+exec 1> >(tee >(logger --tag=$tag))
+exec 2> >(logger --stderr --priority error --tag=$tag)
+
+mkdir -p "$SNAP_COMMON/usr/lib/wsl"
+ln -sfn /var/lib/snapd/hostfs/usr/lib/wsl/lib "$SNAP_COMMON/usr/lib/wsl/lib" || true
+ln -sfn /var/lib/snapd/hostfs/usr/lib/wsl/drivers "$SNAP_COMMON/usr/lib/wsl/drivers" || true
+
+if snapctl is-connected hardware-observe; then
+    modelctl use-engine --fix --assume-yes --verbose
+elif lscpu -V &> /dev/null; then
+    echo "Able to access hardware info without hardware-observe interface connection: assuming dev mode installation."
+    modelctl use-engine --fix --assume-yes --verbose
+else
+    echo "hardware-observe interface not auto connected. Skip auto engine selection."
+fi
