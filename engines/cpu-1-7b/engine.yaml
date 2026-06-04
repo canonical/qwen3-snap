@@ -1,0 +1,17 @@
+name: cpu-1-7b
+description: CPU-optimized 1.7B model
+vendor: Canonical Ltd
+grade: stable
+devices:
+  anyof:
+    - type: cpu
+      architecture: amd64
+    - type: cpu
+      architecture: arm64
+memory: 3G
+disk-space: 8G
+components:
+  - llamacpp
+  - model-1-7b-q4-k-m-gguf
+configurations:
+  sleep-idle-seconds: 600
