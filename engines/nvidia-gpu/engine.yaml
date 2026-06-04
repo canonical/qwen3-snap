@@ -1,0 +1,20 @@
+name: nvidia-gpu
+description: Qwen3 0.6B on NVIDIA GPU using llama.cpp with CUDA
+vendor: Canonical Ltd
+grade: stable
+devices:
+  allof:
+    - type: gpu
+      vendor-id: 0x10de
+  anyof:
+    - type: cpu
+      architecture: amd64
+    - type: cpu
+      architecture: arm64
+memory: 2G
+disk-space: 2G
+components:
+  - llamacpp-cuda
+  - model-0-6b-q4-k-m-gguf
+configurations:
+  sleep-idle-seconds: 600

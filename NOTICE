@@ -1,0 +1,18 @@
+qwen3 inference snap
+====================
+
+This snap packages the Qwen3 0.6B model in GGUF format.
+
+Model: Qwen3-0.6B
+Source: https://huggingface.co/unsloth/Qwen3-0.6B-GGUF
+File: Qwen3-0.6B-Q4_K_M.gguf
+SHA256: ac2d97712095a558e31573f62f466a3f9d93990898b0ec79d7c974c1780d524a
+Size: 396705472 bytes
+Model license: Apache-2.0 (Qwen3, Alibaba Cloud)
+
+Inference runtime: llama.cpp (https://github.com/ggerganov/llama.cpp), MIT License.
+
+This product bundles components from the following projects:
+- inference-snaps-cli (Canonical Ltd)
+- inference-snaps-webui (Canonical Ltd)
+- llama.cpp (The ggml authors, MIT License)

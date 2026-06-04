@@ -1,0 +1,17 @@
+#!/bin/bash -eu
+port="$(modelctl get http.port)"
+host="$(modelctl get http.host)"
+verbose="$(modelctl get verbose)"
+EXTRA_ARGS=()
+if [ "${verbose}" = "true" ]; then
+  EXTRA_ARGS+=(--verbose)
+fi
+set -x
+exec llama-server \
+  --model "$MODEL_FILE" \
+  --alias "$MODEL_NAME" \
+  --port "$port" \
+  --host "$host" \
+  --no-warmup \
+  "${EXTRA_ARGS[@]}" \
+  "$@"

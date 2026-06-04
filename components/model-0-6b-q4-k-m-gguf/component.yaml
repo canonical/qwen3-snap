@@ -1,0 +1,3 @@
+environment:
+  - MODEL_FILE=$COMPONENT/Qwen3-0.6B-Q4_K_M.gguf
+  - MODEL_NAME=qwen3-0.6b-q4-k-m

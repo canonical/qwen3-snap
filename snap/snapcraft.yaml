@@ -1,0 +1,183 @@
+name: qwen3
+base: core24
+title: Qwen3 0.6B
+summary: Inference Snap for Qwen3 0.6B
+description: |
+  Run the Qwen3 0.6B large language model locally with an OpenAI-compatible
+  HTTP API and an optional Web UI, powered by llama.cpp. Supports CPU and
+  NVIDIA CUDA engines with automatic hardware-based engine selection.
+
+  See https://snapcraft.io/qwen3
+license: Apache-2.0
+contact: https://github.com/canonical/qwen3-snap/issues
+website: https://github.com/canonical/qwen3-snap
+source-code: https://github.com/canonical/qwen3-snap
+issues: https://github.com/canonical/qwen3-snap/issues
+
+adopt-info: version
+
+grade: stable
+confinement: strict
+compression: lzo
+
+assumes:
+  - snapd2.68
+
+platforms:
+  amd64:
+  arm64:
+
+environment:
+  SNAP_COMPONENTS: /snap/$SNAP_INSTANCE_NAME/components/$SNAP_REVISION
+  ARCH_TRIPLET: $CRAFT_ARCH_TRIPLET_BUILD_FOR
+
+plugs:
+  home:
+    read: all
+
+hooks:
+  install:
+    plugs: &install-plugs
+      - hardware-observe
+      - opengl
+  post-refresh:
+    plugs: *install-plugs
+
+apps:
+  qwen3:
+    command: bin/qwen3
+    completer: bin/completion.bash
+    plugs:
+      - hardware-observe
+      - opengl
+      - network
+      - desktop
+    environment:
+      ADDITIONAL_FEATURES: chat, webui
+
+  server:
+    command: bin/server.sh
+    daemon: simple
+    plugs:
+      - network-bind
+      - hardware-observe
+      - opengl
+      - home
+      - process-control
+
+  server-webui:
+    command: bin/server-webui.sh
+    daemon: simple
+    plugs:
+      - network-bind
+    environment:
+      UI_ASSETS_DIRECTORY: $SNAP/webui
+
+parts:
+  version:
+    plugin: dump
+    source: .
+    build-packages:
+      - git
+    override-pull: |
+      hash=$(git -C $SNAPCRAFT_PROJECT_DIR describe --always)
+      craftctl set version="0.6b+$hash"
+
+  cli:
+    source:
+      - on amd64: https://github.com/canonical/inference-snaps-cli/releases/download/v1.0.0/inference-snaps-cli-linux-amd64.tar.xz
+      - on arm64: https://github.com/canonical/inference-snaps-cli/releases/download/v1.0.0/inference-snaps-cli-linux-arm64.tar.xz
+    plugin: dump
+    override-build: |
+      mkdir -p bin
+      mv cli bin/modelctl
+      ln --symbolic ./modelctl bin/qwen3
+      craftctl default
+    stage-packages:
+      - pciutils
+
+  cli-nvidia-smi:
+    plugin: nil
+    build-packages:
+      - nvidia-utils-580
+    override-build: &amd64-only |
+      [ "$CRAFT_ARCH_BUILD_FOR" == "amd64" ] || exit 0
+      mkdir -p $CRAFT_PART_INSTALL/usr/bin
+      cp /usr/bin/nvidia-smi $CRAFT_PART_INSTALL/usr/bin/
+      license_dir=$CRAFT_PART_INSTALL/usr/share/doc/nvidia-utils-580/
+      mkdir -p $license_dir
+      cp /usr/share/doc/nvidia-utils-580/copyright $license_dir/
+    override-pull: |
+      [ "$CRAFT_ARCH_BUILD_FOR" == "amd64" ] && craftctl default || exit 0
+    override-stage: *amd64-only
+    override-prime: *amd64-only
+
+  webui:
+    plugin: dump
+    source: https://github.com/canonical/inference-snaps-webui/releases/download/v1.0.0/inference-snaps-webui.tar.xz
+    organize:
+      "*": webui/
+
+  engines:
+    source: engines
+    plugin: dump
+    organize:
+      "*": engines/
+
+  scripts:
+    source: scripts
+    plugin: dump
+    stage-packages:
+      - jq
+    organize:
+      "server.sh": bin/
+      "server-webui.sh": bin/
+      "completion.bash": bin/
+
+  llamacpp:
+    plugin: dump
+    source:
+      - on amd64: https://github.com/canonical/llama.cpp-builds/releases/download/b9482/llamacpp-amd64.tar.gz
+      - on arm64: https://github.com/canonical/llama.cpp-builds/releases/download/b9482/llamacpp-arm64.tar.gz
+    stage-packages:
+      - libgomp1
+    organize:
+      "licenses": usr/share/doc/llama.cpp
+      "*": (component/llamacpp)
+
+  llamacpp-cuda:
+    plugin: dump
+    source:
+      - on amd64: https://github.com/canonical/llama.cpp-builds/releases/download/b9482/llamacpp-amd64+cuda12.9.tar.gz
+      - on arm64: https://github.com/canonical/llama.cpp-builds/releases/download/b9482/llamacpp-arm64+cuda12.9.tar.gz
+    stage-packages:
+      - libgomp1
+    organize:
+      "licenses": usr/share/doc/llama.cpp+cuda
+      "*": (component/llamacpp-cuda)
+
+  local-component-files:
+    plugin: dump
+    source: components
+    organize:
+      "llamacpp/*": (component/llamacpp)
+      "llamacpp-cuda/*": (component/llamacpp-cuda)
+      "model-0-6b-q4-k-m-gguf/*": (component/model-0-6b-q4-k-m-gguf)
+    prime:
+      - -*
+
+components:
+  model-0-6b-q4-k-m-gguf:
+    type: standard
+    summary: Qwen3 0.6B Q4_K_M GGUF
+    description: Model weights for Qwen3 0.6B in GGUF format
+
+  llamacpp:
+    type: standard
+    summary: llama.cpp using default CPU instruction sets
+    description: LLM inference in C/C++
+
+  llamacpp-cuda:
+    type: standard
+    summary: llama.cpp with CUDA backend
+    description: LLM inference in C/C++

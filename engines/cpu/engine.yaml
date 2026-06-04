@@ -1,0 +1,17 @@
+name: cpu
+description: Qwen3 0.6B on CPU using llama.cpp
+vendor: Canonical Ltd
+grade: stable
+devices:
+  anyof:
+    - type: cpu
+      architecture: amd64
+    - type: cpu
+      architecture: arm64
+memory: 2G
+disk-space: 2G
+components:
+  - llamacpp
+  - model-0-6b-q4-k-m-gguf
+configurations:
+  sleep-idle-seconds: 600
