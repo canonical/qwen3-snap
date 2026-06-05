@@ -1,0 +1,8 @@
+servers:
+  openai:
+    protocol: http
+    base-path: /v1
+
+environment:
+  - PATH=$COMPONENT/bin:$PATH
+  - PYTHONPATH=$COMPONENT${PYTHONPATH:+:$PYTHONPATH}
