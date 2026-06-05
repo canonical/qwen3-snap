@@ -6,7 +6,7 @@ description: See snapcraft.io/qwen3
 adopt-info: version
 
 grade: stable
-confinement: strict
+confinement: devmode
 compression: lzo
 
 assumes:
