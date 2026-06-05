@@ -1,0 +1,4 @@
+# Ignore model and toknizer files, which are large and has issue to redistribute.
+# Please check README.md for how to get these files and put them in right place.
+/2048c
+/tokenizer

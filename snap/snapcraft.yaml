@@ -28,6 +28,16 @@ slots:
     source:
       read:
         - &owui-share $SNAP_DATA/share/open-webui
+plugs:
+  mediatek-npu-2404:
+    interface: content
+    content: mediatek-npu-2404
+    target: $SNAP/mediatek-npu-2404
+  mediatek-accel:
+    interface: mediatek-accel
+    units: [apu]
+  hardware-observe:
+    interface: hardware-observe
 
 environment:
   SNAP_COMPONENTS: /snap/$SNAP_INSTANCE_NAME/components/$SNAP_REVISION
@@ -131,6 +141,7 @@ parts:
       "llamacpp-cuda/*": (component/llamacpp-cuda)
       "llamacpp-rocm/*": (component/llamacpp-rocm)
       "model-8b-q4-k-m-gguf/*": (component/model-8b-q4-k-m-gguf)
+      "model-1-7b-mediatek/*": (component/model-1-7b-mediatek)
       
     prime:
       # Exclude everything not explicitly organized
@@ -174,6 +185,22 @@ parts:
     override-stage: *amd64-only
     override-prime: *amd64-only
 
+  mediatek-model-server:
+    plugin: python
+    source: components/mediatek-model-server
+    python-requirements:
+      - requirements.txt
+    override-build: |
+      craftctl default
+      install -Dm755 -t $CRAFT_PART_INSTALL/bin $CRAFT_PART_BUILD/bin/llm_cmdline_tool
+      install -Dm644 -t $CRAFT_PART_INSTALL/lib $CRAFT_PART_BUILD/lib/*
+      install -Dm644 -t $CRAFT_PART_INSTALL/model-server $CRAFT_PART_BUILD/model-server/*
+      install -Dm644 -t $CRAFT_PART_INSTALL $CRAFT_PART_BUILD/component.yaml
+      install -Dm755 -t $CRAFT_PART_INSTALL $CRAFT_PART_BUILD/server
+    organize:
+      "*": (component/mediatek-model-server)
+
+
   notice:
     plugin: nil
     source: NOTICE
@@ -190,6 +217,10 @@ components:
     type: standard
     summary: Qwen 3 8B Q4_K_M GGUF
     description: Model weights for Qwen 3 8B in GGUF format
+  model-1-7b-mediatek:
+    type: standard
+    summary: MediaTek optimized Qwen3 1.7B model for MediaTek Genio NPU
+    description: Model weights for MediaTek optimized Qwen3 1.7B model in DLA format, designed for inference on MediaTek Genio NPU
 
   llamacpp:
     type: standard
@@ -205,6 +236,11 @@ components:
     type: standard
     summary: llama.cpp with ROCm backend
     description: LLM inference in C/C++
+
+  mediatek-model-server:
+    type: standard
+    summary: Model server for MediaTek Genio NPU
+    description: A model server to run MediaTek optimized model on MediaTek Genio NPU
 
 apps:
   qwen3:
@@ -226,6 +262,10 @@ apps:
       - hardware-observe
       - opengl
       - process-control
+      # get the supported shared libraries for MediaTek NPU inference
+      - mediatek-npu-2404
+      # grants access to the NPU device
+      - mediatek-accel
 
   server-webui:
     command: bin/server-webui.sh

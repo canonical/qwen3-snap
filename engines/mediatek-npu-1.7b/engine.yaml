@@ -1,0 +1,13 @@
+name: mediatek-npu-1.7b
+description: MediaTek optimized qwen3 1.7B model for MediaTek Genio NPU
+vendor: Canonical Ltd
+grade: stable
+devices:
+  allof:
+    - type: cpu
+      architecture: arm64
+memory: 4G
+disk-space: 4G
+components:
+  - mediatek-model-server
+  - model-1-7b-mediatek

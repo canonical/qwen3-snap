@@ -1,0 +1,5 @@
+servers:
+  openai:
+    protocol: http
+    base-path: /v1
+

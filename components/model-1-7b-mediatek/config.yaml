@@ -1,0 +1,36 @@
+modelOptions:
+  # Architecture
+  promptTokenBatchSize: 128
+  cacheSize: 2048
+  hiddenSize: 2048
+  numHead: 16
+  numLayer: 28
+  headDim: 128
+  maxTokenLength: 32768
+  # Types
+  modelInputType: INT16
+  modelOutputType: INT16
+  cacheType: INT16
+  maskType: INT16
+  rotEmbType: INT16
+  rotEmbBase: 1000000.0
+  splitMask: False
+
+runtimeOptions:
+  startTokenIndex: 0
+  specialTokens:
+    bosId: 151643
+    eosId: 151645
+    addBos:  # Default to false if not set
+    stopToken:    # Either a list or a value. Default to eosId if left blank
+  tokenizerPath:
+    - $SNAP_COMPONENT_DIR/tokenizer/vocab.txt
+    - $SNAP_COMPONENT_DIR/tokenizer/merges.txt
+    - $SNAP_COMPONENT_DIR/tokenizer/added_tokens.yaml
+
+  tokenEmbPath: $SNAP_COMPONENT_DIR/tokenizer/embedding_int16.bin
+
+  dlaPromptPaths:
+    - $SNAP_COMPONENT_DIR/2048c/dynamic_tflite_output_128t2048c_0.dla
+  dlaGenPaths:
+    - $SNAP_COMPONENT_DIR/2048c/dynamic_tflite_output_1t2048c_0.dla

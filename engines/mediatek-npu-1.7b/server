@@ -1,0 +1,3 @@
+#!/bin/bash -eu
+
+exec "$SNAP_COMPONENTS/mediatek-model-server/server" "$@"

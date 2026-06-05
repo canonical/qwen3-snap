@@ -1,0 +1,57 @@
+#!/bin/bash -eu
+if ! snapctl is-connected mediatek-npu-2404; then
+  echo "ERROR: the mediatek-npu-2404 interface isn't connected."
+  echo "  Please install and connect with mediatek-genio-npu snap."
+  echo ""
+  echo "You can install it and connect by issuing:"
+  echo "  sudo snap install mediatek-genio-npu"
+  echo "  sudo snap connect ${SNAP_INSTANCE_NAME}:mediatek-npu-2404 mediatek-genio-npu:mediatek-npu-2404"
+  exit 1
+fi
+
+if ! snapctl is-connected mediatek-accel; then
+  echo "ERROR: the mediatek-accel interface isn't connected. This interface provides access to the MediaTek Genio NPU Accelerator, which is required for running the LLM demo."
+  echo ""
+  echo "You can connect it by issuing:"
+  echo "  sudo snap connect ${SNAP_INSTANCE_NAME}:mediatek-accel"
+  exit 1
+fi
+
+if ! snapctl is-connected opengl; then
+  echo "ERROR: the opengl interface isn't connected. This interface provides access to /dev/dma_heap/system, which is required by the NPU driver."
+  echo ""
+  echo "You can connect it by issuing:"
+  echo "  sudo snap connect ${SNAP_INSTANCE_NAME}:opengl"
+  exit 1
+fi
+
+if ! snapctl is-connected hardware-observe; then
+  echo "ERROR: the hardware-observe interface isn't connected. This interface provides access to hardware information, and it will be used to detect the NPU hardware on your devices."
+  echo ""
+  echo "You can connect it by issuing:"
+  echo "  sudo snap connect ${SNAP_INSTANCE_NAME}:hardware-observe"
+  exit 1
+fi
+
+
+port="$(modelctl get http.port)"
+host="$(modelctl get http.host)"
+
+set -x
+# Adding --no-warmup to skip the model warmup phase during server startup in order to reduce resource usage if not needed.
+
+COMPONENT_DIR="$(dirname "$(readlink -f "$0")")"
+export LD_LIBRARY_PATH=$COMPONENT_DIR/lib:$LD_LIBRARY_PATH
+export PATH=$COMPONENT_DIR/bin:$PATH
+export PYTHONPATH=$COMPONENT_DIR${PYTHONPATH:+:$PYTHONPATH}
+
+sed "s#\$SNAP_COMPONENT_DIR#$SNAP/../components/$SNAP_REVISION/model-1-7b-mediatek#g" \
+  "$SNAP/../components/$SNAP_REVISION/model-1-7b-mediatek/config.yaml" \
+  > "$TMPDIR/model-1-7b-mediatek-config.yaml"
+
+exec "${SNAP}/mediatek-npu-2404/bin/mediatek-genio-npu-wrapper" python -m model-server \
+   --host "$host" \
+   --port "$port" \
+   --config-path "$TMPDIR/model-1-7b-mediatek-config.yaml" \
+   --model-id qwen3-1.7b \
+   --default-max-tokens 2048
