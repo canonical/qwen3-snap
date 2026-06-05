@@ -40,9 +40,10 @@ devices:
     - type: gpu
       vendor-id: 0x1002
       microarchitecture: gfx1151
-    - type: gpu
-      vendor-id: 0x1002
-      microarchitecture: gfx1152
+    # The following microarchitecture is not compatible with this model
+    # - type: gpu
+    #   vendor-id: 0x1002
+    #   microarchitecture: gfx1152
     - type: gpu
       vendor-id: 0x1002
       microarchitecture: gfx1153
