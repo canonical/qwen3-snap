@@ -26,7 +26,7 @@ jobs:
             select-engine: cpu-8b
             test-chat-tps: true
             test-image-prompt: false
-            devmode: true
+            devmode: true # Pending store permissions: https://forum.snapcraft.io/t/interface-permissions-for-gemma4-snap/51215/4
 
           - job-queue: anbox-nvidia-amd64
             provision-data: "distro: noble"
@@ -35,7 +35,7 @@ jobs:
             test-chat-tps: true
             expected-tps: 9.4
             test-image-prompt: false
-            devmode: true
+            devmode: true # Pending store permissions: https://forum.snapcraft.io/t/interface-permissions-for-gemma4-snap/51215/4
 
           - job-queue: anbox-amd-amd64
             provision-data: "distro: noble"
@@ -43,7 +43,10 @@ jobs:
             test-chat-tps: true
             expected-tps: 10
             test-image-prompt: false
+            #### Pending store permissions: https://forum.snapcraft.io/t/interface-permissions-for-gemma4-snap/51215/4
             devmode: true
+            snap-connections: process-control
+            ####
 
     uses: canonical/inference-snaps-testing/.github/workflows/test-snap.yaml@v1
     secrets: inherit
