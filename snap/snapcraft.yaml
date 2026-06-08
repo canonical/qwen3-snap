@@ -6,7 +6,7 @@ description: See snapcraft.io/qwen3
 adopt-info: version
 
 grade: stable
-confinement: devmode # Pending store permissions: https://forum.snapcraft.io/t/interface-permissions-for-gemma4-snap/51215/4
+confinement: strict
 compression: lzo
 
 assumes:
