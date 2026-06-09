@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from aiohttp import web
+import aiohttp_cors
 
 from .runner import AIModelRunner, ChatMessage, ChatRole
 
@@ -39,13 +40,20 @@ class WebServer:
         self.model_id = model_id
 
         app = web.Application()
-        app.add_routes(
+        routes = app.add_routes(
             [
                 web.get("/v1/models", self.handle_models),
                 web.post("/v1/chat/completions", self.handle_chat_completions),
                 web.post("/v1/completions", self.handle_completions),
             ]
         )
+        cors = aiohttp_cors.setup(app, defaults={"*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+        )})
+        for route in routes:
+            cors.add(route)
         self.app = app
 
     async def handle_models(self, request: web.Request) -> web.Response:
@@ -61,12 +69,7 @@ class WebServer:
                         "owned_by": "demo",
                     }
                 ],
-            },
-            headers={
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type, Authorization",
-                "Access-Control-Allow-Methods": "GET, OPTIONS",
-            },
+            }
         )
 
     async def stream_response(
@@ -81,9 +84,6 @@ class WebServer:
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
                 "X-Accel-Buffering": "no",
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type, Authorization",
-                "Access-Control-Allow-Methods": "POST, OPTIONS",
             },
         )
         await response.prepare(request)
@@ -200,11 +200,6 @@ class WebServer:
                     "total_tokens": 0,
                 },
             },
-            headers={
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type, Authorization",
-                "Access-Control-Allow-Methods": "POST, OPTIONS",
-            },
         )
 
     async def handle_chat_completions(self, request: web.Request) -> web.StreamResponse:
@@ -285,9 +280,4 @@ class WebServer:
                 }
             },
             status=403,
-            headers={
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Content-Type, Authorization",
-                "Access-Control-Allow-Methods": "POST, OPTIONS",
-            },
         )
