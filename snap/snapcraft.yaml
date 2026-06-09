@@ -29,6 +29,11 @@ slots:
       read:
         - &owui-share $SNAP_DATA/share/open-webui
 
+plugs:
+  # To allow side-loading models into server (root daemon) from user home directory
+  home:
+    read: all
+
 environment:
   SNAP_COMPONENTS: /snap/$SNAP_INSTANCE_NAME/components/$SNAP_REVISION
   ARCH_TRIPLET: $CRAFT_ARCH_TRIPLET_BUILD_FOR
@@ -238,6 +243,7 @@ apps:
       - hardware-observe
       - opengl
       - process-control
+      - home
 
   server-webui:
     command: bin/server-webui.sh
