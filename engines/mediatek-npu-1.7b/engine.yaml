@@ -1,0 +1,17 @@
+name: mediatek-npu-1.7b
+description: MediaTek optimized qwen3 1.7B model for MediaTek Genio NPU
+vendor: Canonical Ltd
+grade: stable
+devices:
+  allof:
+    - type: cpu
+      architecture: arm64
+  anyof:
+    - bus: pci
+      vendor-id: 0x14C3 # MEDIATEK Corp.
+      device-id: 0x7961 # MT7921 802.11ax PCIe Wireless Network Adapter [Filogic 330]
+memory: 2G
+disk-space: 4G
+components:
+  - mediatek-model-server
+  - model-1-7b-mediatek
