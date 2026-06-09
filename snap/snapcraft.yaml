@@ -231,6 +231,7 @@ apps:
       - hardware-observe
       - opengl
       - process-control
+      - home
 
   server-webui:
     command: bin/server-webui.sh
