@@ -1,4 +1,4 @@
-name: amd-gpu-1-7b
+name: amd-gpu-1.7b
 description: ROCm-optimized 1.7B model for AMD GPUs
 vendor: Canonical Ltd
 grade: stable
