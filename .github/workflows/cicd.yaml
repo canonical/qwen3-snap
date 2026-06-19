@@ -13,6 +13,9 @@ concurrency:
   group: ${{ github.workflow }}
   queue: max
 
+permissions:
+  contents: read
+
 jobs:
   cicd:
     if: github.repository == 'canonical/qwen3-snap' # do not run on forks
