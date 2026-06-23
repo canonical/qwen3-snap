@@ -1,7 +1,7 @@
 id: qwen3-8b-q4-k-m-gguf
 name: 8b
 quantization: Q4_K_M
-disk-size: 10G
+disk-size: 4795M
 
 description: |
   Qwen3 is a large language model with 8B parameters, optimised for a wide range
