@@ -66,19 +66,16 @@ parts:
       # Do nothing. This significantly reduces build time when sourcing large files.
     override-build: |
       set -eo pipefail
-      cli_version=$($CRAFT_STAGE/bin/qwen3 version --format=json | jq .cli --raw-output)
+      cli_version=$($CRAFT_STAGE/bin/modelctl version --format=json | jq .cli --raw-output)
       git_hash=$(git -C "$SNAPCRAFT_PROJECT_DIR" describe --always)
       craftctl set version="${cli_version#v}+${git_hash}"
 
   cli:
     source:
-      - on amd64: https://github.com/canonical/inference-snaps-cli/releases/download/v1.0.0/inference-snaps-cli-linux-amd64.tar.xz
-      - on arm64: https://github.com/canonical/inference-snaps-cli/releases/download/v1.0.0/inference-snaps-cli-linux-arm64.tar.xz
+      - on amd64: https://github.com/canonical/inference-snaps-cli/releases/download/v2.0.0-beta.4/inference-snaps-cli-linux-amd64.tar.xz
+      - on arm64: https://github.com/canonical/inference-snaps-cli/releases/download/v2.0.0-beta.4/inference-snaps-cli-linux-arm64.tar.xz
     plugin: dump
     override-build: |
-      mkdir -p bin
-      mv cli bin/modelctl
-
       # For tab completion
       ln --symbolic ./modelctl bin/qwen3
 
@@ -114,6 +111,18 @@ parts:
     plugin: dump
     organize:
       "*": engines/
+
+  models:
+    source: models
+    plugin: dump
+    organize:
+      "*": models/
+
+  runtimes:
+    source: runtimes
+    plugin: dump
+    organize:
+      "*": runtimes/
   
   scripts:
     source: scripts
@@ -124,7 +133,6 @@ parts:
       "server.sh": bin/
       "server-webui.sh": bin/
       "export-shared-configs.sh": bin/
-      "completion.bash": bin/
 
   local-component-files:
     plugin: cmake # an out-of-source plugin to reduce copies on disk
@@ -213,8 +221,8 @@ components:
 
 apps:
   qwen3:
-    command: bin/qwen3
-    completer: bin/completion.bash
+    command: bin/modelctl
+    completer: bin/snap-completer.bash
     plugs:
       - hardware-observe
       - opengl
