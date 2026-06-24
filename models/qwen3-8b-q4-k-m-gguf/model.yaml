@@ -4,9 +4,9 @@ quantization: Q4_K_M
 disk-size: 4795M
 
 description: |
-  Qwen3 is a large language model with 8B parameters, optimised for a wide range
-  of natural language understanding and generation tasks. This variant uses Q4_K_M
-  quantization for a balance of performance and efficiency.
+  Qwen3 is a large language model with 8B parameters, optimised for a wide    
+  range of natural language understanding and generation tasks. This variant 
+  uses Q4_K_M quantization for a balance of performance and efficiency.
 model-card-url: https://huggingface.co/unsloth/Qwen3-8B-GGUF
 
 capabilities:
