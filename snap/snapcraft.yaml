@@ -6,11 +6,11 @@ description: |
   It is designed for various natural language processing tasks, including text
   generation, summarization, and question answering.
 
-  This snap lets you run Qwen 3 locally. 
-  
+  This snap lets you run Qwen 3 locally.
+
   Before you start, make sure to have the necessary drivers installed on the host:
   https://documentation.ubuntu.com/inference-snaps/how-to/install-drivers/
-  
+
   **Install:**
   
   `sudo snap install qwen3`
