@@ -144,6 +144,8 @@ parts:
       "llamacpp-cuda/*": (component/llamacpp-cuda)
       "llamacpp-rocm/*": (component/llamacpp-rocm)
       "model-8b-q4-k-m-gguf/*": (component/model-8b-q4-k-m-gguf)
+      "model-4b-q4-k-m-gguf/*": (component/model-4b-q4-k-m-gguf)
+      "model-1-7b-q4-k-m-gguf/*": (component/model-1-7b-q4-k-m-gguf)
       
     prime:
       # Exclude everything not explicitly organized
@@ -203,6 +205,16 @@ components:
     type: standard
     summary: Qwen 3 8B Q4_K_M GGUF
     description: Model weights for Qwen 3 8B in GGUF format
+
+  model-4b-q4-k-m-gguf:
+    type: standard
+    summary: Qwen 3 4B Q4_K_M GGUF
+    description: Model weights for Qwen 3 4B in GGUF format
+
+  model-1-7b-q4-k-m-gguf:
+    type: standard
+    summary: Qwen 3 1.7B Q4_K_M GGUF
+    description: Model weights for Qwen 3 1.7B in GGUF format
 
   llamacpp:
     type: standard

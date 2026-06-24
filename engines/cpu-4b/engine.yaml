@@ -1,0 +1,17 @@
+name: cpu-4b
+description: CPU-optimized 4B model
+vendor: Canonical Ltd
+grade: stable
+devices:
+  anyof:
+    - type: cpu
+      architecture: amd64
+    - type: cpu
+      architecture: arm64
+memory: 3G
+disk-space: 8G
+components:
+  - llamacpp
+  - model-4b-q4-k-m-gguf
+configurations:
+  sleep-idle-seconds: 600
