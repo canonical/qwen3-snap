@@ -1,0 +1,27 @@
+name: amd-gpu
+summary: ROCm optimized for AMD GPUs
+vendor: Canonical Ltd
+devices:
+  allof:
+    - type: cpu
+      architecture: amd64
+  anyof:
+    - type: gpu
+      vendor-id: 0x1002 # AMD
+      microarchitecture: gfx1031
+    - type: gpu
+      vendor-id: 0x1002 # AMD
+      microarchitecture: gfx1032
+    - type: gpu
+      vendor-id: 0x1002 # AMD
+      microarchitecture: gfx1100
+
+runtime: llamacpp-rocm
+
+model:
+  default: qwen3-8b-q4-k-m-gguf
+  options:
+    - qwen3-8b-q4-k-m-gguf
+
+configurations:
+  sleep-idle-seconds: 600

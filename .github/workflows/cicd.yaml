@@ -28,6 +28,6 @@ jobs:
       build-init-script: 'download-models.sh'
       store-track: latest
       snap-name: qwen3
-      smoke-test-engine: cpu-8b
+      smoke-test-engine: cpu
     secrets:
       store-credentials: ${{ secrets.STORE_LOGIN_MAIN }}
