@@ -54,7 +54,7 @@ jobs:
                     "expected-tps": 10,
                     "test-image-prompt": false
           }
-]
+        ]
       snap-name: qwen3
       testflinger-client-id: ${{ vars.TESTFLINGER_CLIENT_ID }}
     secrets:
