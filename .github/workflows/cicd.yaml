@@ -1,19 +1,18 @@
+# This workflow is used to build and publish the snap to the store on every push to main.
 name: CICD
 
 on:
   push:
     branches:
       - main
+  
+  workflow_dispatch: # manual trigger 
 
-  workflow_dispatch: # manual trigger
 
 # Keep one CICD run active at a time so publish/test/promote happen in order
 concurrency:
-  group: ${{ github.workflow }}
+  group: ${ github.workflow }
   queue: max
-
-permissions:
-  contents: read
 
 jobs:
   cicd:
@@ -22,12 +21,10 @@ jobs:
     with:
       build-runner: |
         [
-          ["amd64", "medium", "noble", "self-hosted"],
-          ["arm64", "medium", "noble", "self-hosted"]
-        ]
+          ["amd64", "medium", "noble", "self-hosted"]
       build-init-script: 'download-models.sh'
       store-track: latest
       snap-name: qwen3
       smoke-test-engine: cpu
     secrets:
-      store-credentials: ${{ secrets.STORE_LOGIN_MAIN }}
+      store-credentials: ${ secrets.STORE_LOGIN_MAIN }
