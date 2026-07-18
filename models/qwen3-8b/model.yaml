@@ -1,6 +1,5 @@
-id: qwen3-8b-q4-k-m-gguf
-name: 8b
-quantization: Q4_K_M
+name: qwen3-8b
+quantization: q4-k-m
 disk-size: 4795M
 
 description: |
