@@ -19,9 +19,9 @@ devices:
 runtime: llamacpp-rocm
 
 model:
-  default: qwen3-8b-q4-k-m-gguf
+  default: qwen3-8b
   options:
-    - qwen3-8b-q4-k-m-gguf
+    - qwen3-8b
 
 configurations:
   sleep-idle-seconds: 600
