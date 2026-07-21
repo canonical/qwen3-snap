@@ -1,5 +1,5 @@
 name: qwen3-8b
-quantization: q4-k-m
+quantization: Q4_K_M
 disk-size: 4795M
 
 description: |
