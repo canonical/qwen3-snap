@@ -24,8 +24,6 @@ jobs:
           ["amd64", "medium", "noble", "self-hosted"],
           ["arm64", "medium", "noble", "self-hosted"]
         ]
-      
-      build-init-script: 'download-models.sh'
       store-track: latest
       snap-name: qwen3
       smoke-test-engine: cpu
