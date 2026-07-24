@@ -17,6 +17,7 @@ This snap installs a hardware-optimized engine for inference with
 Clone the repo:
 ```shell
 git clone https://github.com/canonical/qwen3-snap
+cd qwen3-snap
 ```
 
 Initialize the development environment:
