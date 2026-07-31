@@ -197,9 +197,9 @@ parts:
       "licenses": usr/share/doc/llama.cpp+cuda # Add licenses to the snap
       "*": (component/llamacpp-cuda)
 
-  llamacpp-rocm-amd64:
+  llamacpp-rocm:
     plugin: dump
-    source: https://github.com/canonical/llama.cpp-builds/releases/download/b8893/llamacpp-amd64+rocm.tar.gz
+    source: https://github.com/canonical/llama.cpp-builds/releases/download/b9482/llamacpp-amd64+rocm.tar.gz
     stage-packages:
       - libgomp1
       - libatomic1
