@@ -17,5 +17,4 @@ components:
   - model-8b-q4-k-m-gguf
 
 environment:
-  - MODEL_NAME=qwen3-8b-q4-k-m
   - MODEL_FILE=$SNAP_COMPONENTS/model-8b-q4-k-m-gguf/Qwen3-8B-Q4_K_M.gguf
