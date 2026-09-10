@@ -175,13 +175,20 @@ parts:
   local-component-files:
     plugin: cmake # an out-of-source plugin to reduce copies on disk
     source: components
-    override-build:
+    override-build: |
+
       cp -rf --archive --link --no-dereference ${CRAFT_PART_SRC}/* ${CRAFT_PART_INSTALL}
+
+      # Mediatek models should only be included in arm64 builds
+      if [ "$CRAFT_ARCH_BUILD_FOR" != "arm64" ]; then
+        rm -rf ${CRAFT_PART_INSTALL}/model-*-mediatek
+      fi
     organize:
-      "llamacpp/*": (component/llamacpp)
-      "llamacpp-cuda/*": (component/llamacpp-cuda)
-      "llamacpp-rocm/*": (component/llamacpp-rocm)
       "model-8b-q4-k-m-gguf/*": (component/model-8b-q4-k-m-gguf)
+      "model-0-6b-mediatek/*": (component/model-0-6b-mediatek)
+      "model-1-7b-mediatek/*": (component/model-1-7b-mediatek)
+      "model-4b-mediatek/*": (component/model-4b-mediatek)
+      "model-8b-mediatek/*": (component/model-8b-mediatek)
 
     prime:
       # Exclude everything not explicitly organized
@@ -231,42 +238,15 @@ parts:
     python-requirements:
       - requirements.txt
     override-build: |
+      # Only include this part for arm64 builds
+      if [ "$CRAFT_ARCH_BUILD_FOR" != "arm64" ]; then
+        exit 0
+      fi
+
       craftctl default
       install -Dm644 -t $CRAFT_PART_INSTALL/model-server $CRAFT_PART_BUILD/model-server/*
     organize:
       "*": (component/mediatek-llm-proxy)
-
-  model-0-6b-mediatek:
-    plugin: dump
-    source: components/model-0-6b-mediatek
-    organize:
-      "config.yaml": (component/model-0-6b-mediatek)/config.yaml
-      "2048c/*": (component/model-0-6b-mediatek)/2048c/
-      "tokenizer/*": (component/model-0-6b-mediatek)/tokenizer/
-
-  model-1-7b-mediatek:
-    plugin: dump
-    source: components/model-1-7b-mediatek
-    organize:
-      "config.yaml": (component/model-1-7b-mediatek)/config.yaml
-      "2048c/*": (component/model-1-7b-mediatek)/2048c/
-      "tokenizer/*": (component/model-1-7b-mediatek)/tokenizer/
-
-  model-4b-mediatek:
-    plugin: dump
-    source: components/model-4b-mediatek
-    organize:
-      "config.yaml": (component/model-4b-mediatek)/config.yaml
-      "2048c/*": (component/model-4b-mediatek)/2048c/
-      "tokenizer/*": (component/model-4b-mediatek)/tokenizer/
-
-  model-8b-mediatek:
-    plugin: dump
-    source: components/model-8b-mediatek
-    organize:
-      "config.yaml": (component/model-8b-mediatek)/config.yaml
-      "2048c/*": (component/model-8b-mediatek)/2048c/
-      "tokenizer/*": (component/model-8b-mediatek)/tokenizer/
 
   notice:
     plugin: nil
