@@ -1,0 +1,17 @@
+name: qwen3-8b-mediatek
+quantization: DLA INT8/INT16
+disk-size: 9G
+
+description: |
+  Qwen3 8B compiled to MediaTek NeuroPilot DLA format for accelerated
+  inference on the MediaTek Genio NPU via llm_cmdline_tool.
+
+capabilities:
+  - text
+
+components:
+  - model-8b-mediatek
+
+environment:
+  - MODEL_ID=qwen3-8b-mediatek
+  - MODEL_MAX_TOKENS=10240

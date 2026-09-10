@@ -6,6 +6,7 @@
 parts/
 prime/
 stage/
+.craft/
 components/
 
 # Model weight files

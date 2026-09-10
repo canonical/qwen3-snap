@@ -54,8 +54,14 @@ slots:
     source:
       read:
         - &owui-share $SNAP_DATA/share/open-webui
-
 plugs:
+  mediatek-npu-2404:
+    interface: content
+    content: mediatek-npu-2404
+    target: $SNAP/mediatek-npu-2404
+  mediatek-accel:
+    interface: mediatek-accel
+    units: [apu]
   # To allow side-loading models into server (root daemon) from user home directory
   home:
     read: all
@@ -149,6 +155,12 @@ parts:
     plugin: dump
     organize:
       "*": runtimes/
+    prime:
+      # The mediatek-llm-proxy runtime's code is built and shipped by the
+      # mediatek-llm-proxy part below, not dumped as raw source here.
+      - -runtimes/mediatek-llm-proxy/model-server
+      - -runtimes/mediatek-llm-proxy/requirements.txt
+      - -runtimes/mediatek-llm-proxy/.venv
   
   scripts:
     source: scripts
@@ -170,7 +182,7 @@ parts:
       "llamacpp-cuda/*": (component/llamacpp-cuda)
       "llamacpp-rocm/*": (component/llamacpp-rocm)
       "model-8b-q4-k-m-gguf/*": (component/model-8b-q4-k-m-gguf)
-      
+
     prime:
       # Exclude everything not explicitly organized
       - -*
@@ -213,6 +225,49 @@ parts:
     override-stage: *amd64-only
     override-prime: *amd64-only
 
+  mediatek-llm-proxy:
+    plugin: python
+    source: runtimes/mediatek-llm-proxy
+    python-requirements:
+      - requirements.txt
+    override-build: |
+      craftctl default
+      install -Dm644 -t $CRAFT_PART_INSTALL/model-server $CRAFT_PART_BUILD/model-server/*
+    organize:
+      "*": (component/mediatek-llm-proxy)
+
+  model-0-6b-mediatek:
+    plugin: dump
+    source: components/model-0-6b-mediatek
+    organize:
+      "config.yaml": (component/model-0-6b-mediatek)/config.yaml
+      "2048c/*": (component/model-0-6b-mediatek)/2048c/
+      "tokenizer/*": (component/model-0-6b-mediatek)/tokenizer/
+
+  model-1-7b-mediatek:
+    plugin: dump
+    source: components/model-1-7b-mediatek
+    organize:
+      "config.yaml": (component/model-1-7b-mediatek)/config.yaml
+      "2048c/*": (component/model-1-7b-mediatek)/2048c/
+      "tokenizer/*": (component/model-1-7b-mediatek)/tokenizer/
+
+  model-4b-mediatek:
+    plugin: dump
+    source: components/model-4b-mediatek
+    organize:
+      "config.yaml": (component/model-4b-mediatek)/config.yaml
+      "2048c/*": (component/model-4b-mediatek)/2048c/
+      "tokenizer/*": (component/model-4b-mediatek)/tokenizer/
+
+  model-8b-mediatek:
+    plugin: dump
+    source: components/model-8b-mediatek
+    organize:
+      "config.yaml": (component/model-8b-mediatek)/config.yaml
+      "2048c/*": (component/model-8b-mediatek)/2048c/
+      "tokenizer/*": (component/model-8b-mediatek)/tokenizer/
+
   notice:
     plugin: nil
     source: NOTICE
@@ -229,12 +284,28 @@ components:
     type: standard
     summary: Qwen 3 8B Q4_K_M GGUF
     description: Model weights for Qwen 3 8B in GGUF format
+  model-0-6b-mediatek:
+    type: standard
+    summary: MediaTek optimized Qwen3 0.6B model for MediaTek Genio NPU
+    description: Model weights for MediaTek optimized Qwen3 0.6B model in DLA format, designed for inference on MediaTek Genio NPU
+  model-1-7b-mediatek:
+    type: standard
+    summary: MediaTek optimized Qwen3 1.7B model for MediaTek Genio NPU
+    description: Model weights for MediaTek optimized Qwen3 1.7B model in DLA format, designed for inference on MediaTek Genio NPU
+  model-4b-mediatek:
+    type: standard
+    summary: MediaTek optimized Qwen3 4B model for MediaTek Genio NPU
+    description: Model weights for MediaTek optimized Qwen3 4B model in DLA format, designed for inference on MediaTek Genio NPU
+  model-8b-mediatek:
+    type: standard
+    summary: MediaTek optimized Qwen3 8B model for MediaTek Genio NPU
+    description: Model weights for MediaTek optimized Qwen3 8B model in DLA format, designed for inference on MediaTek Genio NPU
 
   llamacpp:
     type: standard
     summary: llama.cpp using default CPU instruction sets
     description: LLM inference in C/C++
-  
+
   llamacpp-cuda:
     type: standard
     summary: llama.cpp with CUDA backend
@@ -244,6 +315,11 @@ components:
     type: standard
     summary: llama.cpp with ROCm backend
     description: LLM inference in C/C++
+
+  mediatek-llm-proxy:
+    type: standard
+    summary: LLM proxy server for MediaTek Genio NPU
+    description: An OpenAI-compatible proxy server that runs MediaTek optimized models on the MediaTek Genio NPU via llm_cmdline_tool
 
 apps:
   qwen3:
@@ -266,6 +342,10 @@ apps:
       - opengl
       - process-control
       - home
+      # get the supported shared libraries for MediaTek NPU inference
+      - mediatek-npu-2404
+      # grants access to the NPU device
+      - mediatek-accel
 
   server-webui:
     command: bin/server-webui.sh
