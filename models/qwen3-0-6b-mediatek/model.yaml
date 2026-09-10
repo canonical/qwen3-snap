@@ -1,0 +1,13 @@
+name: qwen3-0-6b-mediatek
+description: |
+  Qwen3 0.6B compiled to MediaTek NeuroPilot DLA format for accelerated
+  inference on the MediaTek Genio NPU.
+quantization: DLA INT16
+disk-size: 1G
+capabilities:
+  - text
+components:
+  - model-0-6b-mediatek
+environment:
+  - MODEL_ID=qwen3-0-6b-mediatek
+  - MODEL_MAX_TOKENS=10240

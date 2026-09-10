@@ -1,0 +1,22 @@
+name: mediatek-npu
+summary: MediaTek optimized for Genio NPU
+description: MediaTek NeuroPilot NPU-accelerated inference, running via llm_cmdline_tool on MediaTek Genio boards.
+vendor: Canonical Ltd
+devices:
+  allof:
+    - type: cpu
+      architecture: arm64
+  anyof:
+    - bus: pci
+      vendor-id: 0x14C3 # MEDIATEK Corp.
+      device-id: 0x8189 # MediaTek Genio 520/720 PCIe device ID, used as a proxy to detect MediaTek Genio platforms
+
+runtime: mediatek-llm-proxy
+
+model:
+  default: qwen3-1-7b-mediatek
+  options:
+    - qwen3-0-6b-mediatek
+    - qwen3-1-7b-mediatek
+    - qwen3-4b-mediatek
+    - qwen3-8b-mediatek

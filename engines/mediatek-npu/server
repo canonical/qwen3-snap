@@ -1,0 +1,58 @@
+#!/bin/bash -eu
+
+if ! snapctl is-connected mediatek-npu-2404; then
+  echo "ERROR: the mediatek-npu-2404 interface isn't connected."
+  echo "  Please install and connect with mediatek-genio-npu snap."
+  echo ""
+  echo "You can install it and connect by issuing:"
+  echo "  sudo snap install mediatek-genio-npu"
+  echo "  sudo snap connect ${SNAP_INSTANCE_NAME}:mediatek-npu-2404 mediatek-genio-npu:mediatek-npu-2404"
+  exit 1
+fi
+
+if ! snapctl is-connected mediatek-accel; then
+  echo "ERROR: the mediatek-accel interface isn't connected, but it is required to access the MediaTek Genio NPU Accelerator."
+  echo ""
+  echo "You can connect it by issuing:"
+  echo "  sudo snap connect ${SNAP_INSTANCE_NAME}:mediatek-accel"
+  exit 1
+fi
+
+if ! snapctl is-connected opengl; then
+  echo "ERROR: the opengl interface isn't connected. This interface provides access to /dev/dma_heap/system, which is required by the NPU driver."
+  echo ""
+  echo "You can connect it by issuing:"
+  echo "  sudo snap connect ${SNAP_INSTANCE_NAME}:opengl"
+  exit 1
+fi
+
+if ! snapctl is-connected hardware-observe; then
+  echo "ERROR: the hardware-observe interface isn't connected. This interface provides access to hardware information, and it will be used to detect the NPU hardware on your devices."
+  echo ""
+  echo "You can connect it by issuing:"
+  echo "  sudo snap connect ${SNAP_INSTANCE_NAME}:hardware-observe"
+  exit 1
+fi
+
+port="$(modelctl get http.port)"
+host="$(modelctl get http.host)"
+
+model_component_dir="$SNAP_COMPONENTS/model-${MODEL_ID#qwen3-}"
+
+sed "s#\$SNAP_COMPONENT_DIR#$model_component_dir#g" \
+  "$model_component_dir/config.yaml" \
+  > "$TMPDIR/model-config.yaml"
+
+preformatter_args=()
+if [ -n "${MODEL_PREFORMATTER:-}" ]; then
+  preformatter_args=(--preformatter "$MODEL_PREFORMATTER")
+fi
+
+set -x
+exec "${SNAP}/mediatek-npu-2404/bin/mediatek-genio-npu-wrapper" python -m model-server \
+   --host "$host" \
+   --port "$port" \
+   --config-path "$TMPDIR/model-config.yaml" \
+   --model-id "$MODEL_ID" \
+   --default-max-tokens "$MODEL_MAX_TOKENS" \
+   "${preformatter_args[@]}"

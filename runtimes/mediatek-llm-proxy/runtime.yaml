@@ -1,0 +1,13 @@
+name: mediatek-llm-proxy
+
+servers:
+  openai:
+    protocol: http
+    base-path: /v1
+
+environment:
+  - PATH=$SNAP_COMPONENTS/mediatek-llm-proxy/bin:$PATH
+  - PYTHONPATH=$SNAP_COMPONENTS/mediatek-llm-proxy${PYTHONPATH:+:$PYTHONPATH}
+
+components:
+  - mediatek-llm-proxy

@@ -1,0 +1,13 @@
+name: qwen3-1-7b-mediatek
+description: |
+  Qwen3 1.7B compiled to MediaTek NeuroPilot DLA format for accelerated
+  inference on the MediaTek Genio NPU.
+quantization: DLA INT16
+disk-size: 3G
+capabilities:
+  - text
+components:
+  - model-1-7b-mediatek
+environment:
+  - MODEL_ID=qwen3-1-7b-mediatek
+  - MODEL_MAX_TOKENS=10240
