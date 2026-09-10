@@ -179,7 +179,7 @@ parts:
 
       cp -rf --archive --link --no-dereference ${CRAFT_PART_SRC}/* ${CRAFT_PART_INSTALL}
 
-      # Mediatek models should only be included in arm64 builds
+      # MediaTek models should only be included in arm64 builds
       if [ "$CRAFT_ARCH_BUILD_FOR" != "arm64" ]; then
         rm -rf ${CRAFT_PART_INSTALL}/model-*-mediatek
       fi
