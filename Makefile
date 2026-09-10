@@ -10,7 +10,11 @@ MEDIATEK_MODEL_BASE_URL := https://mediatek-aiot.s3.ap-southeast-1.amazonaws.com
 # Snap-safe component-name stems for each MediaTek model size (dots aren't
 # allowed in snap/component names, so sizes like "1.7b" become "1-7b").
 MEDIATEK_MODEL_SIZES := 0-6b 1-7b 4b 8b
+ifneq ($(filter aarch64 arm64,$(shell uname -m)),) # Only include MediaTek model targets on arm64 systems
 MEDIATEK_MODEL_TARGETS := $(addsuffix -mediatek,$(addprefix download-model-,$(MEDIATEK_MODEL_SIZES)))
+else
+MEDIATEK_MODEL_TARGETS :=
+endif
 
 .PHONY: all help init build install upload smoke-test install-deps init-submodules download-models download-model-8b download-model-%-mediatek
 
