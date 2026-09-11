@@ -22,7 +22,7 @@ jobs:
       build-runner: |
         [
           ["amd64", "medium", "noble", "self-hosted"],
-          ["arm64", "medium", "noble", "self-hosted"]
+          ["arm64", "large", "noble", "self-hosted"]
         ]
       store-track: latest
       snap-name: qwen3
