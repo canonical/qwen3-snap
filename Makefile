@@ -83,7 +83,7 @@ download-model-8b:
 # These models only run on arm64 NPU hardware, so the download is skipped on
 # other architectures unless FORCE_MEDIATEK_DOWNLOAD=1 is passed.
 download-model-%-mediatek:
-	@if [ "$(FORCE_MEDIATEK_DOWNLOAD)" = "1" ] || [[ "$$(uname -m)" =~ ^(aarch64|arm64)$$ ]]; then \
+	@if [[ "$(FORCE_MEDIATEK_DOWNLOAD)" = "1" || "$$(uname -m)" =~ ^(aarch64|arm64)$$ ]]; then \
 		echo "Downloading MediaTek NPU-optimized Qwen3-$(subst -,.,$*) model weights..."; \
 		rm -rf components/model-$*-mediatek; \
 		mkdir -p components/model-$*-mediatek; \
