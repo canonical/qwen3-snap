@@ -10,11 +10,11 @@ MEDIATEK_MODEL_BASE_URL := https://mediatek-aiot.s3.ap-southeast-1.amazonaws.com
 # Snap-safe component-name stems for each MediaTek model size (dots aren't
 # allowed in snap/component names, so sizes like "1.7b" become "1-7b").
 MEDIATEK_MODEL_SIZES := 0-6b 1-7b 4b 8b
-ifneq ($(filter aarch64 arm64,$(shell uname -m)),) # Only include MediaTek model targets on arm64 systems
 MEDIATEK_MODEL_TARGETS := $(addsuffix -mediatek,$(addprefix download-model-,$(MEDIATEK_MODEL_SIZES)))
-else
-MEDIATEK_MODEL_TARGETS :=
-endif
+# MediaTek models are only useful on arm64 (they target arm64 NPU hardware),
+# so the download is skipped by default on other architectures. Set this to
+# 1 to force the download anyway, e.g. on an amd64 developer machine.
+FORCE_MEDIATEK_DOWNLOAD ?= 0
 
 .PHONY: all help init build install upload smoke-test install-deps init-submodules download-models download-model-8b download-model-%-mediatek
 
@@ -80,16 +80,22 @@ download-model-8b:
 # Downloads a MediaTek NPU-optimized Qwen3 model package. The stem (e.g.
 # "1-7b") is the snap-safe component name; MediaTek's own zip/path naming
 # uses dots instead of hyphens (e.g. "1.7b"), recovered via $(subst -,.,$*).
+# These models only run on arm64 NPU hardware, so the download is skipped on
+# other architectures unless FORCE_MEDIATEK_DOWNLOAD=1 is passed.
 download-model-%-mediatek:
-	@echo "Downloading MediaTek NPU-optimized Qwen3-$(subst -,.,$*) model weights..."
-	rm -rf components/model-$*-mediatek
-	mkdir -p components/model-$*-mediatek
-	set -o pipefail && curl -L "$(MEDIATEK_MODEL_BASE_URL)/qwen3-$(subst -,.,$*).zip" \
-		| bsdtar -xf - -C components/model-$*-mediatek --strip-components=1 \
-			'qwen3-$(subst -,.,$*)/2048c/*' 'qwen3-$(subst -,.,$*)/tokenizer/*' 'qwen3-$(subst -,.,$*)/scripts/config-yocto_np8-qwen3-$(subst -,.,$*)*.yaml'
-	# Swap MediaTek's baked-in Yocto rootfs path for the $$SNAP_COMPONENT_DIR
-	# placeholder that engines/mediatek-npu/server substitutes at runtime.
-	sed 's#/usr/share/llm/qwen3-$(subst -,.,$*)#$$SNAP_COMPONENT_DIR#g' \
-		components/model-$*-mediatek/scripts/config-yocto_np8-qwen3-$(subst -,.,$*)*.yaml \
-		> components/model-$*-mediatek/config.yaml
-	rm -rf components/model-$*-mediatek/scripts
+	@if [ "$(FORCE_MEDIATEK_DOWNLOAD)" = "1" ] || [[ "$$(uname -m)" =~ ^(aarch64|arm64)$$ ]]; then \
+		echo "Downloading MediaTek NPU-optimized Qwen3-$(subst -,.,$*) model weights..."; \
+		rm -rf components/model-$*-mediatek; \
+		mkdir -p components/model-$*-mediatek; \
+		set -o pipefail; \
+		curl -L "$(MEDIATEK_MODEL_BASE_URL)/qwen3-$(subst -,.,$*).zip" \
+			| bsdtar -xf - -C components/model-$*-mediatek --strip-components=1 \
+				'qwen3-$(subst -,.,$*)/2048c/*' 'qwen3-$(subst -,.,$*)/tokenizer/*' 'qwen3-$(subst -,.,$*)/scripts/config-yocto_np8-qwen3-$(subst -,.,$*)*.yaml'; \
+		: Swap MediaTek\'s baked-in Yocto rootfs path for the SNAP_COMPONENT_DIR placeholder that engines/mediatek-npu/server substitutes at runtime.; \
+		sed 's#/usr/share/llm/qwen3-$(subst -,.,$*)#$$SNAP_COMPONENT_DIR#g' \
+			components/model-$*-mediatek/scripts/config-yocto_np8-qwen3-$(subst -,.,$*)*.yaml \
+			> components/model-$*-mediatek/config.yaml; \
+		rm -rf components/model-$*-mediatek/scripts; \
+	else \
+		echo "Skipping MediaTek Qwen3-$(subst -,.,$*) model download: not on arm64 (set FORCE_MEDIATEK_DOWNLOAD=1 to override)"; \
+	fi
