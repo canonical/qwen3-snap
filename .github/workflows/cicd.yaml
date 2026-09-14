@@ -22,10 +22,11 @@ jobs:
       build-runner: |
         [
           ["amd64", "medium", "noble", "self-hosted"],
-          ["arm64", "medium", "noble", "self-hosted"]
+          ["arm64", "large", "noble", "self-hosted"]
         ]
       store-track: latest
       snap-name: qwen3
       smoke-test-engine: cpu
+      smoke-test-features: openai_models, openai_chat_text
     secrets:
       store-credentials: ${{ secrets.STORE_LOGIN_MAIN }}
