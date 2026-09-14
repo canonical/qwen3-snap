@@ -18,7 +18,7 @@ environment:
   - MODEL_MAX_TOKENS=10240
 
 # The model is split across two components because it exceeds the maximum 
-# allowed component size. The layout below is such that  config.yaml 
+# allowed component size. The layout below is such that config.yaml 
 # (which expects one $SNAP_COMPONENT_DIR) keeps working unmodified.
 # Each entry must be a leaf file (not a whole directory) because
 # components are mounted read-only, so a symlink can't be nested inside

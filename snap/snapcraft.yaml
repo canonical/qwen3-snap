@@ -187,7 +187,16 @@ parts:
       "model-8b-q4-k-m-gguf/*": (component/model-8b-q4-k-m-gguf)
       "model-0-6b-mediatek/*": (component/model-0-6b-mediatek)
       "model-1-7b-mediatek/*": (component/model-1-7b-mediatek)
-      "model-4b-mediatek/*": (component/model-4b-mediatek)
+      "model-4b-mediatek/config.yaml": (component/model-4b-mediatek-1-of-2)/config.yaml
+      "model-4b-mediatek/tokenizer/vocab.txt": (component/model-4b-mediatek-1-of-2)/tokenizer/vocab.txt
+      "model-4b-mediatek/tokenizer/merges.txt": (component/model-4b-mediatek-1-of-2)/tokenizer/merges.txt
+      "model-4b-mediatek/tokenizer/added_tokens.yaml": (component/model-4b-mediatek-1-of-2)/tokenizer/added_tokens.yaml
+      "model-4b-mediatek/tokenizer/embedding_int16.bin": (component/model-4b-mediatek-1-of-2)/tokenizer/embedding_int16.bin
+      "model-4b-mediatek/2048c/shared_weights_0.bin": (component/model-4b-mediatek-1-of-2)/2048c/shared_weights_0.bin
+      "model-4b-mediatek/2048c/dynamic_tflite_output_128t2048c_0.dla": (component/model-4b-mediatek-2-of-2)/2048c/dynamic_tflite_output_128t2048c_0.dla
+      "model-4b-mediatek/2048c/dynamic_tflite_output_128t2048c_0_shared.dla": (component/model-4b-mediatek-2-of-2)/2048c/dynamic_tflite_output_128t2048c_0_shared.dla
+      "model-4b-mediatek/2048c/dynamic_tflite_output_1t2048c_0.dla": (component/model-4b-mediatek-2-of-2)/2048c/dynamic_tflite_output_1t2048c_0.dla
+      "model-4b-mediatek/2048c/dynamic_tflite_output_1t2048c_0_shared.dla": (component/model-4b-mediatek-2-of-2)/2048c/dynamic_tflite_output_1t2048c_0_shared.dla
       "model-8b-mediatek/config.yaml": (component/model-8b-mediatek-1-of-2)/config.yaml
       "model-8b-mediatek/tokenizer/vocab.txt": (component/model-8b-mediatek-1-of-2)/tokenizer/vocab.txt
       "model-8b-mediatek/tokenizer/merges.txt": (component/model-8b-mediatek-1-of-2)/tokenizer/merges.txt
@@ -278,10 +287,12 @@ components:
     type: standard
     summary: MediaTek optimized Qwen3 1.7B model for MediaTek Genio NPU
     description: Model weights for MediaTek optimized Qwen3 1.7B model in DLA format, designed for inference on MediaTek Genio NPU
-  model-4b-mediatek:
+  model-4b-mediatek-1-of-2: &model-mediatek-4b
     type: standard
     summary: MediaTek optimized Qwen3 4B model for MediaTek Genio NPU
     description: Model weights for MediaTek optimized Qwen3 4B model in DLA format, designed for inference on MediaTek Genio NPU
+  model-4b-mediatek-2-of-2:
+    <<: *model-mediatek-4b
   model-8b-mediatek-1-of-2: &model-mediatek-8b
     type: standard
     summary: MediaTek optimized Qwen3 8B model for MediaTek Genio NPU
