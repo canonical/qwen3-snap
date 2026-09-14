@@ -10,8 +10,31 @@ capabilities:
   - text
 
 components:
-  - model-8b-mediatek
+  - model-8b-mediatek-1-of-2
+  - model-8b-mediatek-2-of-2
 
 environment:
   - MODEL_ID=qwen3-8b-mediatek
   - MODEL_MAX_TOKENS=10240
+
+# The model is split across two components because it exceeds the maximum 
+# allowed component size. The layout below is such that  config.yaml 
+# (which expects one $SNAP_COMPONENT_DIR) keeps working unmodified.
+# Each entry must be a leaf file (not a whole directory) because
+# components are mounted read-only, so a symlink can't be nested inside
+# another symlinked directory.
+layout:
+  /tmp/qwen3-8b-mediatek/config.yaml:
+    symlink: $SNAP_COMPONENTS/model-8b-mediatek-1-of-2/config.yaml
+  /tmp/qwen3-8b-mediatek/tokenizer/vocab.txt:
+    symlink: $SNAP_COMPONENTS/model-8b-mediatek-1-of-2/tokenizer/vocab.txt
+  /tmp/qwen3-8b-mediatek/tokenizer/merges.txt:
+    symlink: $SNAP_COMPONENTS/model-8b-mediatek-1-of-2/tokenizer/merges.txt
+  /tmp/qwen3-8b-mediatek/tokenizer/added_tokens.yaml:
+    symlink: $SNAP_COMPONENTS/model-8b-mediatek-1-of-2/tokenizer/added_tokens.yaml
+  /tmp/qwen3-8b-mediatek/tokenizer/embedding_int16.bin:
+    symlink: $SNAP_COMPONENTS/model-8b-mediatek-1-of-2/tokenizer/embedding_int16.bin
+  /tmp/qwen3-8b-mediatek/2048c/dynamic_tflite_output_1t2048c_0.dla:
+    symlink: $SNAP_COMPONENTS/model-8b-mediatek-1-of-2/2048c/dynamic_tflite_output_1t2048c_0.dla
+  /tmp/qwen3-8b-mediatek/2048c/dynamic_tflite_output_128t2048c_0.dla:
+    symlink: $SNAP_COMPONENTS/model-8b-mediatek-2-of-2/2048c/dynamic_tflite_output_128t2048c_0.dla
