@@ -37,7 +37,14 @@ fi
 port="$(modelctl get http.port)"
 host="$(modelctl get http.host)"
 
-model_component_dir="$SNAP_COMPONENTS/model-${MODEL_ID#qwen3-}"
+# Models split across multiple components are reassembled by modelctl into a
+# single /tmp/$MODEL_ID directory (see the model's "layout" setting). Prefer
+# that merged view when present, and fall back to the single component
+# directory otherwise.
+model_component_dir="/tmp/$MODEL_ID"
+if [ ! -d "$model_component_dir" ]; then
+  model_component_dir="$SNAP_COMPONENTS/model-${MODEL_ID#qwen3-}"
+fi
 
 sed "s#\$SNAP_COMPONENT_DIR#$model_component_dir#g" \
   "$model_component_dir/config.yaml" \
