@@ -1,8 +1,31 @@
-# Qwen 3 snap
+# Qwen 3 inference snap
 [![qwen3](https://snapcraft.io/qwen3/badge.svg)](https://snapcraft.io/qwen3)
 
-This snap installs a hardware-optimized engine for inference with
-[Qwen 3](https://qwen.ai/blog?id=qwen3).
+Qwen 3 is a large language model (LLM) developed by Alibaba. It is designed for various natural language processing tasks, including text generation, summarization, and question answering.
+
+Use this snap to quickly install an optimized environment for local inference with Qwen 3.
+
+The snap includes the following hardware-optimized inference engines:
+
+* cpu: Optimized for x64 and ARM (armv8, armv9) CPUs
+* nvidia-gpu: CUDA-enabled GPU acceleration
+* amd-gpu: ROCm-enabled GPU acceleration for AMD GPUs
+* mediatek-npu: Optimized for MediaTek Genio NPUs
+
+The most suitable engine is automatically selected based on the available hardware.
+
+#### Install
+```shell
+sudo snap install qwen3
+```
+
+#### Run
+```shell
+qwen3
+```
+
+> [!TIP]
+> Some accelerators require extra [drivers](https://documentation.ubuntu.com/inference-snaps/how-to/setup/drivers/) to be usable with this snap.
 
 ## Resources
 
