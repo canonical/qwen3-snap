@@ -2,6 +2,7 @@ import asyncio
 import codecs
 from dataclasses import dataclass
 from enum import Enum
+import re
 import sys
 import tempfile
 from typing import AsyncGenerator, Optional
@@ -30,6 +31,11 @@ class LLMCmdlineToolState(Enum):
 RESPONSE_TERMINATORS = [b"</end>", b"[Full Response]"]
 _MAX_TERMINATOR_LEN = max(len(terminator) for terminator in RESPONSE_TERMINATORS)
 _MAX_STDERR_CAPTURE = 4096
+
+# Runner versions decorate control messages differently; response bytes must stay untouched.
+_LOG_PREFIX = re.compile(
+    rb"^(?:\[[^\]\r\n]+\][ \t]*|(?:TRACE|DEBUG|INFO|WARN(?:ING)?|ERROR|FATAL):?[ \t]+)+"
+)
 
 class LLMCmdlineToolError(RuntimeError):
     """Raised when llm_cmdline_tool fails to start, exits unexpectedly, or
@@ -102,12 +108,14 @@ async def _read_llm_cmdline_response(
 
         if state == LLMCmdlineToolState.START:
             if buf.endswith(b"\n"):
-                if buf.startswith(b"Done analyzing prompt in"):
+                line = _LOG_PREFIX.sub(b"", buf.lstrip(b" \t"))
+                if line.startswith(b"Done analyzing prompt in"):
                     state = LLMCmdlineToolState.PROMPT_DONE
                 buf = b""
         elif state == LLMCmdlineToolState.PROMPT_DONE:
             if buf.endswith(b"\n"):
-                if buf.startswith(b"Response [Max Length = "):
+                line = _LOG_PREFIX.sub(b"", buf.lstrip(b" \t"))
+                if line.startswith(b"Response [Max Length = "):
                     state = LLMCmdlineToolState.OUTPUT_TOKEN
                 buf = b""
         elif state == LLMCmdlineToolState.OUTPUT_TOKEN:
