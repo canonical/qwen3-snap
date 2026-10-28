@@ -3,23 +3,53 @@
 port="$(modelctl get http.port)"
 host="$(modelctl get http.host)"
 sleep_idle_seconds="$(modelctl get sleep-idle-seconds)"
-min_context_size="$(modelctl get min-context-size)"
 model_name=$("$SNAP_NAME" model --format=json | jq -r '.name')
 
-mmproj_args=()
+lemonade_dir="$SNAP_COMMON/lemonade"
+models_dir="$lemonade_dir/models"
+
+# Expose the model to lemond under the engine's model name. lemond names an
+# imported GGUF after its folder, and reads the file in place.
+rm -rf "$models_dir"
+mkdir -p "$models_dir/$model_name"
+ln -s "$MODEL_FILE" "$models_dir/$model_name/$(basename "$MODEL_FILE")"
 if [ -n "${MMPROJ_FILE:-}" ]; then
-  mmproj_args=(--mmproj "$MMPROJ_FILE")
+  ln -s "$MMPROJ_FILE" "$models_dir/$model_name/$(basename "$MMPROJ_FILE")"
+fi
+
+# Everything needed is bundled in the snap: use the llama-server from the
+# llamacpp-rocm component (on PATH) as the "system" backend and never download.
+# Written as defaults so that user overrides in config.json still apply.
+jq -n \
+  --arg models_dir "$models_dir" \
+  --arg lemonade_dir "$lemonade_dir" \
+  --arg args "--no-warmup --sleep-idle-seconds $sleep_idle_seconds" \
+  '{
+    llamacpp: {backend: "system", prefer_system: true, args: $args},
+    no_fetch_executables: true,
+    offline: true,
+    broadcast: false,
+    models_dir: ($lemonade_dir + "/hub"),
+    extra_models_dir: $models_dir
+  }' > "$lemonade_dir/defaults.json"
+
+export LEMONADE_DEFAULTS_PATH="$lemonade_dir/defaults.json"
+
+# The bundled llama.cpp build ships GPU code for a subset of the supported
+# architectures. Map the others onto the closest compatible one.
+if [ -z "${HSA_OVERRIDE_GFX_VERSION:-}" ]; then
+  for props in /sys/class/kfd/kfd/topology/nodes/*/properties; do
+    gfx_version="$(awk '$1 == "gfx_target_version" {print $2}' "$props" 2>/dev/null || true)"
+    case "$gfx_version" in
+      100303|100304|100305|100306) export HSA_OVERRIDE_GFX_VERSION=10.3.0 ;; # gfx1033-gfx1036 -> gfx1030
+      110003) export HSA_OVERRIDE_GFX_VERSION=11.0.0 ;; # gfx1103 -> gfx1100
+    esac
+  done
 fi
 
 set -x
-# Adding --no-warmup to skip the model warmup phase during server startup in order to reduce resource usage if not needed.
-exec llama-server \
-  --model "$MODEL_FILE" \
-  --alias "$model_name" \
-  "${mmproj_args[@]}" \
-  --port "$port" \
+# The context size is auto-fitted to available device memory (ctx_size=-1)
+exec "$SNAP/lemonade/lemond" "$lemonade_dir" "$lemonade_dir" \
   --host "$host" \
-  --no-warmup \
-  --sleep-idle-seconds "$sleep_idle_seconds" \
-  --fit-ctx "$min_context_size" \
+  --port "$port" \
   "$@"
