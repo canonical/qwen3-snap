@@ -11,7 +11,7 @@ description: |
 
   * cpu: Optimized for x64 and ARM (armv8, armv9) CPUs
   * nvidia-gpu: CUDA-enabled GPU acceleration
-  * amd-gpu: ROCm-enabled GPU acceleration for AMD GPUs
+  * amd-gpu: ROCm-enabled GPU acceleration for AMD GPUs (embedded Lemonade server)
   * mediatek-npu: Optimized for MediaTek Genio NPUs
 
   The most suitable engine is automatically selected based on the available hardware.
@@ -234,6 +234,9 @@ parts:
       "licenses": usr/share/doc/llama.cpp+cuda # Add licenses to the snap
       "*": (component/llamacpp-cuda)
 
+  # llama.cpp ROCm build, used by the embedded Lemonade server as its "system" backend.
+  # The archive bundles the ROCm runtime (bin/), the ggml HIP plugin (lib/libggml-hip.so)
+  # and the rocBLAS/hipBLASLt kernels, so nothing is downloaded at runtime.
   llamacpp-rocm:
     plugin: dump
     source: https://github.com/canonical/llama.cpp-builds/releases/download/b9482/llamacpp-amd64+rocm.tar.gz
@@ -249,6 +252,63 @@ parts:
     override-build: *amd64-only
     override-stage: *amd64-only
     override-prime: *amd64-only
+
+  # Embedded Lemonade server (lemond), used by the amd-gpu engine.
+  # Backends are never downloaded: the llamacpp-rocm component provides llama-server
+  # and lemond is configured to use it as the "system" backend.
+  lemonade:
+    plugin: nil
+    source: https://github.com/lemonade-sdk/lemonade.git
+    source-type: git
+    source-tag: v2026.43.3
+    source-depth: 1
+    build-packages:
+      - cmake
+      - ninja-build
+      - g++
+      - pkg-config
+      - python3
+      - git
+      - libssl-dev
+      - libdrm-dev
+      - libcurl4-openssl-dev
+      - libzstd-dev
+      - libwebsockets-dev
+      - libsystemd-dev
+      - nlohmann-json3-dev
+      - libmbedtls-dev
+    stage-packages:
+      - libssl3t64
+      - libdrm2
+      - libdrm-amdgpu1
+      - libcurl4t64
+      - libzstd1
+      - libwebsockets19t64
+      - libsystemd0
+    override-build: |
+      set -eo pipefail
+      # Only needed on amd64, where the amd-gpu engine is available
+      if [ "$CRAFT_ARCH_BUILD_FOR" != "amd64" ]; then
+        exit 0
+      fi
+
+      # tools/version.py derives the version from git; pin it as the source is a shallow clone
+      echo "2026.43.3" > .version
+
+      cmake -S . -B build -G Ninja \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_WEB_APP=OFF \
+        -DBUILD_TESTING=OFF
+      cmake --build build --target lemond
+
+      dest=$CRAFT_PART_INSTALL/lemonade
+      mkdir -p $dest/resources
+      cp build/lemond $dest/
+      cp -r build/resources/. $dest/resources/
+
+      license_dir=$CRAFT_PART_INSTALL/usr/share/doc/lemonade
+      mkdir -p $license_dir
+      cp LICENSE $license_dir/
 
   mediatek-llm-proxy:
     plugin: python
