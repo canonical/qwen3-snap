@@ -27,6 +27,13 @@ qwen3
 > [!TIP]
 > Some accelerators require extra [drivers](https://documentation.ubuntu.com/inference-snaps/how-to/setup/drivers/) to be usable with this snap.
 
+#### AMD GPU context size
+The amd-gpu engine auto-fits the context size to the available device memory by default (`min-context-size: -1`). This is the recommended setting on AMD platforms. To override it with a fixed context size:
+```shell
+sudo qwen3 set min-context-size=8192
+```
+Set it back to `-1` to restore auto-fit.
+
 ## Resources
 
 📚 **[Documentation](https://documentation.ubuntu.com/inference-snaps/)**, learn how to use inference snaps

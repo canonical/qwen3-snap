@@ -49,4 +49,6 @@ model:
 
 configurations:
   sleep-idle-seconds: 600
-  min-context-size: 4096
+  # Applied as Lemonade ctx_size. The default of -1 auto-fits the context size to the
+  # available device memory and is recommended on AMD GPUs.
+  min-context-size: -1

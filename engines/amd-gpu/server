@@ -3,6 +3,7 @@
 port="$(modelctl get http.port)"
 host="$(modelctl get http.host)"
 sleep_idle_seconds="$(modelctl get sleep-idle-seconds)"
+min_context_size="$(modelctl get min-context-size)"
 model_name=$("$SNAP_NAME" model --format=json | jq -r '.name')
 
 lemonade_dir="$SNAP_COMMON/lemonade"
@@ -20,11 +21,14 @@ fi
 # Everything needed is bundled in the snap: use the llama-server from the
 # llamacpp-rocm component (on PATH) as the "system" backend and never download.
 # Written as defaults so that user overrides in config.json still apply.
+# The min-context-size engine setting maps to Lemonade's ctx_size.
 jq -n \
   --arg models_dir "$models_dir" \
   --arg lemonade_dir "$lemonade_dir" \
+  --argjson ctx_size "$min_context_size" \
   --arg args "--no-warmup --sleep-idle-seconds $sleep_idle_seconds" \
   '{
+    ctx_size: $ctx_size,
     llamacpp: {backend: "system", prefer_system: true, args: $args},
     no_fetch_executables: true,
     offline: true,
@@ -36,7 +40,6 @@ jq -n \
 export LEMONADE_DEFAULTS_PATH="$lemonade_dir/defaults.json"
 
 set -x
-# The context size is auto-fitted to available device memory (ctx_size=-1)
 exec "$SNAP/lemonade/lemond" "$lemonade_dir" "$lemonade_dir" \
   --host "$host" \
   --port "$port" \
