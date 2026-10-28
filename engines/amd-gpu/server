@@ -35,18 +35,6 @@ jq -n \
 
 export LEMONADE_DEFAULTS_PATH="$lemonade_dir/defaults.json"
 
-# The bundled llama.cpp build ships GPU code for a subset of the supported
-# architectures. Map the others onto the closest compatible one.
-if [ -z "${HSA_OVERRIDE_GFX_VERSION:-}" ]; then
-  for props in /sys/class/kfd/kfd/topology/nodes/*/properties; do
-    gfx_version="$(awk '$1 == "gfx_target_version" {print $2}' "$props" 2>/dev/null || true)"
-    case "$gfx_version" in
-      100303|100304|100305|100306) export HSA_OVERRIDE_GFX_VERSION=10.3.0 ;; # gfx1033-gfx1036 -> gfx1030
-      110003) export HSA_OVERRIDE_GFX_VERSION=11.0.0 ;; # gfx1103 -> gfx1100
-    esac
-  done
-fi
-
 set -x
 # The context size is auto-fitted to available device memory (ctx_size=-1)
 exec "$SNAP/lemonade/lemond" "$lemonade_dir" "$lemonade_dir" \
