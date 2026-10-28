@@ -6,20 +6,41 @@ sleep_idle_seconds="$(modelctl get sleep-idle-seconds)"
 min_context_size="$(modelctl get min-context-size)"
 model_name=$("$SNAP_NAME" model --format=json | jq -r '.name')
 
-mmproj_args=()
+lemonade_dir="$SNAP_COMMON/lemonade"
+models_dir="$lemonade_dir/models"
+
+# Expose the model to lemond under the engine's model name. lemond names an
+# imported GGUF after its folder, and reads the file in place.
+rm -rf "$models_dir"
+mkdir -p "$models_dir/$model_name"
+ln -s "$MODEL_FILE" "$models_dir/$model_name/$(basename "$MODEL_FILE")"
 if [ -n "${MMPROJ_FILE:-}" ]; then
-  mmproj_args=(--mmproj "$MMPROJ_FILE")
+  ln -s "$MMPROJ_FILE" "$models_dir/$model_name/$(basename "$MMPROJ_FILE")"
 fi
 
+# Everything needed is bundled in the snap: use the llama-server from the
+# llamacpp-rocm component (on PATH) as the "system" backend and never download.
+# Written as defaults so that user overrides in config.json still apply.
+# The min-context-size engine setting maps to Lemonade's ctx_size.
+jq -n \
+  --arg models_dir "$models_dir" \
+  --arg lemonade_dir "$lemonade_dir" \
+  --argjson ctx_size "$min_context_size" \
+  --arg args "--no-warmup --sleep-idle-seconds $sleep_idle_seconds" \
+  '{
+    ctx_size: $ctx_size,
+    llamacpp: {backend: "system", prefer_system: true, args: $args},
+    no_fetch_executables: true,
+    offline: true,
+    broadcast: false,
+    models_dir: ($lemonade_dir + "/hub"),
+    extra_models_dir: $models_dir
+  }' > "$lemonade_dir/defaults.json"
+
+export LEMONADE_DEFAULTS_PATH="$lemonade_dir/defaults.json"
+
 set -x
-# Adding --no-warmup to skip the model warmup phase during server startup in order to reduce resource usage if not needed.
-exec llama-server \
-  --model "$MODEL_FILE" \
-  --alias "$model_name" \
-  "${mmproj_args[@]}" \
-  --port "$port" \
+exec "$SNAP/lemonade/lemond" "$lemonade_dir" "$lemonade_dir" \
   --host "$host" \
-  --no-warmup \
-  --sleep-idle-seconds "$sleep_idle_seconds" \
-  --fit-ctx "$min_context_size" \
+  --port "$port" \
   "$@"

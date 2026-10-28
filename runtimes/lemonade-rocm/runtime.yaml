@@ -1,4 +1,4 @@
-name: llamacpp-rocm
+name: lemonade-rocm
 
 servers:
   openai:
@@ -6,10 +6,12 @@ servers:
     base-path: /v1
 
 environment:
-  # Add llama.cpp binaries
+  # Add the llama.cpp ROCm build, which lemond uses as its "system" backend.
+  # lemond finds libggml-hip.so in ../lib relative to llama-server on PATH.
   - PATH=$PATH:$SNAP_COMPONENTS/llamacpp-rocm/bin
   # Add llama.cpp-built shared libraries
   - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SNAP_COMPONENTS/llamacpp-rocm/lib
+  - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SNAP_COMPONENTS/llamacpp-rocm/bin
   # Add staged shared libraries
   - LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$SNAP_COMPONENTS/llamacpp-rocm/usr/lib/$ARCH_TRIPLET
 
