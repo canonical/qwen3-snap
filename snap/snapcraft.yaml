@@ -285,6 +285,7 @@ parts:
       - libzstd1
       - libwebsockets19t64
       - libsystemd0
+      - libmbedtls14t64
     override-build: |
       set -eo pipefail
       # Only needed on amd64, where the amd-gpu engine is available
