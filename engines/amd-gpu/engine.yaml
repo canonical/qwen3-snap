@@ -1,11 +1,14 @@
 name: amd-gpu
-summary: ROCm optimized for AMD GPUs
+summary: ROCm optimized for AMD GPUs, served by Lemonade
 vendor: Canonical Ltd
 devices:
   allof:
     - type: cpu
       architecture: amd64
   anyof:
+    - type: gpu
+      vendor-id: 0x1002 # AMD
+      microarchitecture: gfx1030
     - type: gpu
       vendor-id: 0x1002 # AMD
       microarchitecture: gfx1031
@@ -15,8 +18,29 @@ devices:
     - type: gpu
       vendor-id: 0x1002 # AMD
       microarchitecture: gfx1100
+    - type: gpu
+      vendor-id: 0x1002 # AMD
+      microarchitecture: gfx1101
+    - type: gpu
+      vendor-id: 0x1002 # AMD
+      microarchitecture: gfx1102
+    - type: gpu
+      vendor-id: 0x1002 # AMD
+      microarchitecture: gfx1150
+    - type: gpu
+      vendor-id: 0x1002 # AMD
+      microarchitecture: gfx1151
+    - type: gpu
+      vendor-id: 0x1002 # AMD
+      microarchitecture: gfx1152
+    - type: gpu
+      vendor-id: 0x1002 # AMD
+      microarchitecture: gfx1200
+    - type: gpu
+      vendor-id: 0x1002 # AMD
+      microarchitecture: gfx1201
 
-runtime: llamacpp-rocm
+runtime: lemonade-rocm
 
 model:
   default: qwen3-8b
@@ -25,4 +49,6 @@ model:
 
 configurations:
   sleep-idle-seconds: 600
-  min-context-size: 4096
+  # Applied as Lemonade ctx_size. The default of -1 auto-fits the context size to the
+  # available device memory and is recommended on AMD GPUs.
+  min-context-size: -1

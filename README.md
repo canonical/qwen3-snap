@@ -9,7 +9,7 @@ The snap includes the following hardware-optimized inference engines:
 
 * cpu: Optimized for x64 and ARM (armv8, armv9) CPUs
 * nvidia-gpu: CUDA-enabled GPU acceleration
-* amd-gpu: ROCm-enabled GPU acceleration for AMD GPUs
+* amd-gpu: ROCm-enabled GPU acceleration for AMD GPUs (served by an embedded Lemonade server using the bundled llama.cpp ROCm backend)
 * mediatek-npu: Optimized for MediaTek Genio NPUs
 
 The most suitable engine is automatically selected based on the available hardware.
@@ -26,6 +26,13 @@ qwen3
 
 > [!TIP]
 > Some accelerators require extra [drivers](https://documentation.ubuntu.com/inference-snaps/how-to/setup/drivers/) to be usable with this snap.
+
+#### AMD GPU context size
+The amd-gpu engine auto-fits the context size to the available device memory by default (`min-context-size: -1`). This is the recommended setting on AMD platforms. To override it with a fixed context size:
+```shell
+sudo qwen3 set min-context-size=8192
+```
+Set it back to `-1` to restore auto-fit.
 
 ## Resources
 
